@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة إحصائيات التربوية - م.م سيت الرائدة</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a237e;
+    --secondary: #0d47a1;
+    --accent1: #e65100;
+    --accent2: #00897b;
+    --accent3: #6a1b9a;
+    --accent4: #c62828;
+    --accent5: #2e7d32;
+    --accent6: #f57f17;
+    --gold: #ffd700;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
+    --bg: #0a0e27;
+    --bg2: #0d1333;
+    --card: rgba(255,255,255,0.05);
+    --card-border: rgba(255,255,255,0.1);
+    --text: #e8eaf6;
+    --text-dim: #9fa8da;
+    --grade1: #ef5350;
+    --grade2: #ff7043;
+    --grade3: #ffa726;
+    --grade4: #ffee58;
+    --grade5: #9ccc65;
+    --grade6: #26c6da;
+    --level-colors: #e53935,#8e24aa,#1e88e5,#43a047,#fb8c00,#00acc1;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    direction: rtl;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 20%, rgba(26,35,126,0.4) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(13,71,161,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(106,27,154,0.2) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 1600px; margin: 0 auto; padding: 20px; }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 40px 20px 30px;
+    position: relative;
+    margin-bottom: 30px;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 10%; right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), #4fc3f7, var(--gold), transparent);
+  }
+  .header-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent6), var(--accent1));
+    color: white;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+  }
+  .header h1 {
+    font-family: 'Tajawal', sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.6rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, var(--gold) 50%, #4fc3f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+  .header-sub {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+  }
+  .header-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+  .header-info span { color: var(--gold); font-weight: 700; }
+
+  /* SECTION HEADERS */
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 35px 0 20px;
+    padding: 0 5px;
+  }
+  .section-title .icon {
+    width: 45px; height: 45px;
+    border-radius: 12px;
+    display: flex;align-items:center;justify-content:center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .section-title h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+  }
+  .section-title .line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent);
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 100%; height: 3px;
+    background: var(--card-top-color, linear-gradient(90deg, var(--primary), var(--accent2)));
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+
+  /* GRID LAYOUTS */
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+  .grid-6 { display: grid; grid-template-columns: repeat(6,1fr); gap: 12px; }
+  .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+
+  @media(max-width:900px) {
+    .grid-3,.grid-4,.grid-6 { grid-template-columns:repeat(2,1fr); }
+  }
+  @media(max-width:600px) {
+    .grid-3,.grid-4,.grid-2,.grid-6 { grid-template-columns:1fr; }
+  }
+
+  /* STAT METRIC CARD */
+  .metric-card {
+    text-align: center;
+    padding: 22px 15px;
+  }
+  .metric-label {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .metric-value {
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .metric-sub {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  /* LEVEL OVERVIEW CARDS */
+  .level-card {
+    padding: 18px;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .level-card .lvl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .level-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    color: white;
+  }
+  .level-total {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: white;
+  }
+  .level-stats { display: flex; gap: 15px; margin-top: 8px; }
+  .level-stat { text-align: center; flex: 1; }
+  .level-stat .val { font-size: 1.2rem; font-weight: 700; color: white; }
+  .level-stat .lbl { font-size: 0.7rem; color: rgba(255,255,255,0.7); }
+
+  /* TOP 3 PODIUM */
+  .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 0; height: 160px; margin-bottom: 15px; }
+  .podium-place { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+  .podium-block {
+    width: 100%; display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 900; color: white;
+    border-radius: 8px 8px 0 0;
+  }
+  .podium-block.p1 { background: linear-gradient(180deg, #ffd700, #ff8f00); height: 100px; }
+  .podium-block.p2 { background: linear-gradient(180deg, #bdbdbd, #757575); height: 75px; }
+  .podium-block.p3 { background: linear-gradient(180deg, #cd7f32, #8d4e0b); height: 55px; }
+  .podium-name { font-size: 0.72rem; text-align: center; margin-top: 6px; color: var(--text); line-height: 1.3; font-weight: 600; }
+  .podium-score { font-size: 0.85rem; font-weight: 900; color: var(--gold); }
+  .podium-gender { font-size: 0.65rem; color: var(--text-dim); }
+
+  /* TABLE */
+  .stat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .stat-table th {
+    background: rgba(255,255,255,0.08);
+    padding: 10px 12px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--gold);
+    border-bottom: 2px solid rgba(255,215,0,0.3);
+    font-size: 0.8rem;
+  }
+  .stat-table td {
+    padding: 9px 12px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: var(--text);
+  }
+  .stat-table tr:last-child td { border-bottom: none; }
+  .stat-table tr:hover td { background: rgba(255,255,255,0.04); }
+  .rank-1 { color: var(--gold) !important; font-weight: 900; }
+  .rank-2 { color: var(--silver) !important; font-weight: 700; }
+  .rank-3 { color: var(--bronze) !important; font-weight: 700; }
+
+  /* SCORE BADGE */
+  .score-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+  .score-high { background: rgba(46,125,50,0.3); color: #69f0ae; border: 1px solid rgba(46,125,50,0.5); }
+  .score-mid { background: rgba(245,124,0,0.3); color: #ffb74d; border: 1px solid rgba(245,124,0,0.5); }
+  .score-low { background: rgba(198,40,40,0.3); color: #ef9a9a; border: 1px solid rgba(198,40,40,0.5); }
+
+  /* GENDER PILL */
+  .male { color: #4fc3f7; }
+  .female { color: #f48fb1; }
+
+  /* CHARTS */
+  .chart-container { position: relative; }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+
+  /* SUBJECT CARD */
+  .subject-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .subject-row:last-child { border-bottom: none; }
+  .subject-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .subject-name { flex: 1; font-size: 0.82rem; color: var(--text); }
+  .subject-avg { font-weight: 700; font-size: 0.9rem; }
+
+  /* GLOBAL SUMMARY BAR */
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(6,1fr);
+    gap: 0;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 30px;
+  }
+  .summary-item {
+    padding: 20px 15px;
+    text-align: center;
+    border-left: 1px solid var(--card-border);
+    position: relative;
+  }
+  .summary-item:last-child { border-left: none; }
+  .summary-item .s-label { font-size: 0.72rem; color: var(--text-dim); margin-bottom: 6px; font-weight: 600; }
+  .summary-item .s-val { font-size: 1.8rem; font-weight: 900; }
+  .summary-item .s-sub { font-size: 0.7rem; color: var(--text-dim); margin-top: 3px; }
+
+  /* WINNER RIBBON */
+  .winner-ribbon {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: var(--gold);
+    color: #333;
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  /* TABS */
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    color: var(--text-dim);
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .tab-btn.active, .tab-btn:hover {
+    background: var(--secondary);
+    color: white;
+    border-color: var(--secondary);
+  }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); margin: 25px 0; }
+
+  /* MASTERY BAR */
+  .mastery-bars { display: flex; gap: 3px; height: 30px; border-radius: 8px; overflow: hidden; }
+  .mastery-segment { display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: white; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--card-border);
+    margin-top: 40px;
+  }
+
+  /* GLOW EFFECTS */
+  .glow-gold { text-shadow: 0 0 20px rgba(255,215,0,0.5); }
+  .glow-blue { text-shadow: 0 0 20px rgba(79,195,247,0.5); }
+
+  /* ANIMATION */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate { animation: fadeUp 0.6s ease forwards; }
+  .animate-d1 { animation-delay: 0.1s; opacity: 0; }
+  .animate-d2 { animation-delay: 0.2s; opacity: 0; }
+  .animate-d3 { animation-delay: 0.3s; opacity: 0; }
+
+  /* SPARKLE */
+  .medal { font-size: 1.1rem; }
+
+  .card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* NUMBER circles */
+  .num-circle {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .n1 { background: linear-gradient(135deg, #ffd700, #ff8f00); color: #333; }
+  .n2 { background: linear-gradient(135deg, #bdbdbd, #757575); color: #333; }
+  .n3 { background: linear-gradient(135deg, #cd7f32, #8d4e0b); color: white; }
+
+  .student-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 5px;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+  .student-row:hover { background: rgba(255,255,255,0.04); }
+  .student-info { flex: 1; }
+  .student-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+  .student-class { font-size: 0.7rem; color: var(--text-dim); }
+  .student-score { font-size: 1rem; font-weight: 900; }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header animate animate-d1">
+    <div class="header-badge">📊 الدورة الأولى - السنة الدراسية 2025/2026</div>
+    <h1>لوحة الإحصائيات التربوية<br>مجموعة مدارس سيت الرائدة</h1>
+    <div class="header-sub">
+      <div class="header-info">📍 إقليم: <span>زاكورة</span></div>
+      <div class="header-info">🏫 المؤسسة: <span>م.م سيت الرائدة</span></div>
+      <div class="header-info">📅 السنة: <span>2025/2026</span></div>
+      <div class="header-info">🎓 الأكاديمية: <span>درعة - تافيلالت</span></div>
+    </div>
+  </div>
+
+  <!-- GLOBAL SUMMARY BAR -->
+  <div class="summary-bar animate animate-d2">
+    <div class="summary-item">
+      <div class="s-label">إجمالي التلاميذ</div>
+      <div class="s-val" style="color:#4fc3f7">259</div>
+      <div class="s-sub">جميع الأقسام</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">الحاصلون على المعدل</div>
+      <div class="s-val" style="color:#69f0ae">234</div>
+      <div class="s-sub">90.35%</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">أعلى معدل عام</div>
+      <div class="s-val glow-gold" style="color:var(--gold)">9.10</div>
+      <div class="s-sub">الرابع ابتدائي</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">أدنى معدل عام</div>
+      <div class="s-val" style="color:#ef9a9a">3.61</div>
+      <div class="s-sub">الثالث ابتدائي</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">المعدل الملاحظ العام</div>
+      <div class="s-val" style="color:#ce93d8">6.53</div>
+      <div class="s-sub">على مستوى المؤسسة</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">عدد الأقسام</div>
+      <div class="s-val" style="color:#ffcc02">6</div>
+      <div class="s-sub">من الأول إلى السادس</div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 1: OVERVIEW PER LEVEL ========== -->
+  <div class="section-title animate">
+    <div class="icon" style="background:linear-gradient(135deg,#1a237e,#283593)">📈</div>
+    <h2>نظرة عامة على المستويات الدراسية</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="grid-3 animate animate-d1">
+    <!-- Level 1 -->
+    <div class="card level-card" style="background:linear-gradient(135deg,rgba(229,57,53,0.15),rgba(229,57,53,0.05));--card-top-color:linear-gradient(90deg,#e53935,#ef9a9a)">
+      <div class="lvl-header">
+        <div>
+          <span class="level-badge" style="background:#e53935">الأول ابتدائي</span>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">APG1 - APG2</div>
+        </div>
+        <div class="level-total">42</div>
+      </div>
+      <div class="level-stats">
+        <div class="level-stat"><div class="val" style="color:#ef9a9a">8.86</div><div class="lbl">أعلى</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffb74d">6.66</div><div class="lbl">معدل ملاحظ</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffcdd2">4.13</div><div class="lbl">أدنى</div></div>
+        <div class="level-stat"><div class="val" style="color:#a5d6a7">90%</div><div class="lbl">نجاح</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:90%;background:linear-gradient(90deg,#e53935,#ef9a9a)"></div></div>
+    </div>
+    <!-- Level 2 -->
+    <div class="card level-card" style="background:linear-gradient(135deg,rgba(142,36,170,0.15),rgba(142,36,170,0.05));--card-top-color:linear-gradient(90deg,#8e24aa,#ce93d8)">
+      <div class="lvl-header">
+        <div>
+          <span class="level-badge" style="background:#8e24aa">الثاني ابتدائي</span>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">APG1 - APG2 - APG3</div>
+        </div>
+        <div class="level-total">49</div>
+      </div>
+      <div class="level-stats">
+        <div class="level-stat"><div class="val" style="color:#ce93d8">8.90</div><div class="lbl">أعلى</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffb74d">6.69</div><div class="lbl">معدل ملاحظ</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffcdd2">4.24</div><div class="lbl">أدنى</div></div>
+        <div class="level-stat"><div class="val" style="color:#a5d6a7">94%</div><div class="lbl">نجاح</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:94%;background:linear-gradient(90deg,#8e24aa,#ce93d8)"></div></div>
+    </div>
+    <!-- Level 3 -->
+    <div class="card level-card" style="background:linear-gradient(135deg,rgba(30,136,229,0.15),rgba(30,136,229,0.05));--card-top-color:linear-gradient(90deg,#1e88e5,#90caf9)">
+      <div class="lvl-header">
+        <div>
+          <span class="level-badge" style="background:#1e88e5">الثالث ابتدائي</span>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">APG3 - APG4 - APG5</div>
+        </div>
+        <div class="level-total">41</div>
+      </div>
+      <div class="level-stats">
+        <div class="level-stat"><div class="val" style="color:#90caf9">8.78</div><div class="lbl">أعلى</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffb74d">6.17</div><div class="lbl">معدل ملاحظ</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffcdd2">3.61</div><div class="lbl">أدنى</div></div>
+        <div class="level-stat"><div class="val" style="color:#a5d6a7">83%</div><div class="lbl">نجاح</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:83%;background:linear-gradient(90deg,#1e88e5,#90caf9)"></div></div>
+    </div>
+    <!-- Level 4 -->
+    <div class="card level-card" style="background:linear-gradient(135deg,rgba(67,160,71,0.15),rgba(67,160,71,0.05));--card-top-color:linear-gradient(90deg,#43a047,#a5d6a7)">
+      <div class="lvl-header">
+        <div>
+          <span class="level-badge" style="background:#43a047">الرابع ابتدائي</span>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">APG3 - APG4 - APG5</div>
+        </div>
+        <div class="level-total">40</div>
+      </div>
+      <div class="level-stats">
+        <div class="level-stat"><div class="val" style="color:#a5d6a7">9.10</div><div class="lbl">أعلى</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffb74d">6.55</div><div class="lbl">معدل ملاحظ</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffcdd2">3.89</div><div class="lbl">أدنى</div></div>
+        <div class="level-stat"><div class="val" style="color:#a5d6a7">93%</div><div class="lbl">نجاح</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:93%;background:linear-gradient(90deg,#43a047,#a5d6a7)"></div></div>
+    </div>
+    <!-- Level 5 -->
+    <div class="card level-card" style="background:linear-gradient(135deg,rgba(251,140,0,0.15),rgba(251,140,0,0.05));--card-top-color:linear-gradient(90deg,#fb8c00,#ffcc80)">
+      <div class="lvl-header">
+        <div>
+          <span class="level-badge" style="background:#fb8c00">الخامس ابتدائي</span>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">APG4 - APG5 - APG6</div>
+        </div>
+        <div class="level-total">44</div>
+      </div>
+      <div class="level-stats">
+        <div class="level-stat"><div class="val" style="color:#ffcc80">8.57</div><div class="lbl">أعلى</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffb74d">5.93</div><div class="lbl">معدل ملاحظ</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffcdd2">4.04</div><div class="lbl">أدنى</div></div>
+        <div class="level-stat"><div class="val" style="color:#a5d6a7">82%</div><div class="lbl">نجاح</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:82%;background:linear-gradient(90deg,#fb8c00,#ffcc80)"></div></div>
+    </div>
+    <!-- Level 6 -->
+    <div class="card level-card" style="background:linear-gradient(135deg,rgba(0,172,193,0.15),rgba(0,172,193,0.05));--card-top-color:linear-gradient(90deg,#00acc1,#80deea)">
+      <div class="lvl-header">
+        <div>
+          <span class="level-badge" style="background:#00acc1">السادس ابتدائي</span>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">APG5 - APG6</div>
+        </div>
+        <div class="level-total">43</div>
+      </div>
+      <div class="level-stats">
+        <div class="level-stat"><div class="val" style="color:#80deea">8.70</div><div class="lbl">أعلى</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffb74d">7.12</div><div class="lbl">معدل ملاحظ</div></div>
+        <div class="level-stat"><div class="val" style="color:#ffcdd2">5.24</div><div class="lbl">أدنى</div></div>
+        <div class="level-stat"><div class="val" style="color:#a5d6a7">100%</div><div class="lbl">نجاح</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:100%;background:linear-gradient(90deg,#00acc1,#80deea)"></div></div>
+    </div>
+  </div>
+
+  <!-- CHART: Comparative Averages -->
+  <div class="grid-2" style="margin-top:20px">
+    <div class="card animate animate-d2">
+      <div class="card-title">📊 مقارنة المعدلات حسب المستوى</div>
+      <div class="chart-container" style="height:280px">
+        <canvas id="levelChart"></canvas>
+      </div>
+    </div>
+    <div class="card animate animate-d3">
+      <div class="card-title">👥 توزيع التلاميذ حسب المستوى والجنس</div>
+      <div class="chart-container" style="height:280px">
+        <canvas id="genderChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 2: GLOBAL TOP 3 ========== -->
+  <div class="section-title animate">
+    <div class="icon" style="background:linear-gradient(135deg,#f57f17,#ff8f00)">🏆</div>
+    <h2>الثلاثة الأوائل على مستوى المؤسسة كاملة</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card animate animate-d1" style="--card-top-color:linear-gradient(90deg,var(--gold),#ff8f00,var(--gold))">
+    <div class="grid-3">
+      <!-- 1st place -->
+      <div style="text-align:center;padding:20px 10px;border-left:1px solid rgba(255,255,255,0.1)">
+        <div style="font-size:3rem;margin-bottom:10px">🥇</div>
+        <div style="font-size:0.75rem;color:var(--gold);font-weight:700;letter-spacing:1px;margin-bottom:5px">المرتبة الأولى</div>
+        <div style="font-size:1.1rem;font-weight:900;color:white;margin-bottom:5px">ايت حماد او الحاج وجدان</div>
+        <div style="font-size:2rem;font-weight:900;color:var(--gold)">9.10</div>
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-top:5px">الرابع ابتدائي | قسم 3APG-4APG</div>
+        <div style="margin-top:8px"><span class="female">أنثى</span></div>
+      </div>
+      <!-- 2nd place -->
+      <div style="text-align:center;padding:20px 10px;border-left:1px solid rgba(255,255,255,0.1)">
+        <div style="font-size:3rem;margin-bottom:10px">🥈</div>
+        <div style="font-size:0.75rem;color:var(--silver);font-weight:700;letter-spacing:1px;margin-bottom:5px">المرتبة الثانية</div>
+        <div style="font-size:1.1rem;font-weight:900;color:white;margin-bottom:5px">تمتضيت اسماء</div>
+        <div style="font-size:2rem;font-weight:900;color:var(--silver)">8.90</div>
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-top:5px">الثاني ابتدائي | قسم 2APG-1</div>
+        <div style="margin-top:8px"><span class="female">أنثى</span></div>
+      </div>
+      <!-- 3rd place -->
+      <div style="text-align:center;padding:20px 10px">
+        <div style="font-size:3rem;margin-bottom:10px">🥉</div>
+        <div style="font-size:0.75rem;color:var(--bronze);font-weight:700;letter-spacing:1px;margin-bottom:5px">المرتبة الثالثة</div>
+        <div style="font-size:1.1rem;font-weight:900;color:white;margin-bottom:5px">تمتضيت يونس</div>
+        <div style="font-size:2rem;font-weight:900;color:var(--bronze)">8.86</div>
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-top:5px">الأول ابتدائي | قسم 1APG-1</div>
+        <div style="margin-top:8px"><span class="male">ذكر</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 3: TOP 3 PER LEVEL ========== -->
+  <div class="section-title animate">
+    <div class="icon" style="background:linear-gradient(135deg,#1565c0,#1e88e5)">🎖️</div>
+    <h2>الثلاثة الأوائل في كل مستوى دراسي</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="grid-3 animate animate-d1">
+    <!-- Level 6 top 3 -->
+    <div class="card" style="--card-top-color:linear-gradient(90deg,#00acc1,#80deea)">
+      <div class="card-title" style="color:#80deea">🎓 السادس ابتدائي عام</div>
+      <div class="student-row">
+        <span class="num-circle n1">1</span>
+        <div class="student-info">
+          <div class="student-name">وباسو جواد</div>
+          <div class="student-class">5APG-6APG | H198013435H</div>
+        </div>
+        <div class="student-score" style="color:var(--gold)">8.70</div>
+        <span class="male">♂</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n2">2</span>
+        <div class="student-info">
+          <div class="student-name">بوشعيب ليلى</div>
+          <div class="student-class">4APG-5APG-6APG | H204020844</div>
+        </div>
+        <div class="student-score" style="color:var(--silver)">8.69</div>
+        <span class="female">♀</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n3">3</span>
+        <div class="student-info">
+          <div class="student-name">ايت حماد او الحاج وليد</div>
+          <div class="student-class">5APG-6APG | H199058512H</div>
+        </div>
+        <div class="student-score" style="color:var(--bronze)">8.62</div>
+        <span class="male">♂</span>
+      </div>
+    </div>
+
+    <!-- Level 5 top 3 -->
+    <div class="card" style="--card-top-color:linear-gradient(90deg,#fb8c00,#ffcc80)">
+      <div class="card-title" style="color:#ffcc80">🎓 الخامس ابتدائي عام</div>
+      <div class="student-row">
+        <span class="num-circle n1">1</span>
+        <div class="student-info">
+          <div class="student-name">شاطر محمد</div>
+          <div class="student-class">4APG-5APG | H211028245H</div>
+        </div>
+        <div class="student-score" style="color:var(--gold)">8.57</div>
+        <span class="male">♂</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n2">2</span>
+        <div class="student-info">
+          <div class="student-name">الحسيني مريم</div>
+          <div class="student-class">5APG-6APG | H217004548H</div>
+        </div>
+        <div class="student-score" style="color:var(--silver)">7.64</div>
+        <span class="female">♀</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n3">3</span>
+        <div class="student-info">
+          <div class="student-name">أفرو ريان</div>
+          <div class="student-class">5APG-6APG | H215004550H</div>
+        </div>
+        <div class="student-score" style="color:var(--bronze)">7.51</div>
+        <span class="male">♂</span>
+      </div>
+    </div>
+
+    <!-- Level 4 top 3 -->
+    <div class="card" style="--card-top-color:linear-gradient(90deg,#43a047,#a5d6a7)">
+      <div class="card-title" style="color:#a5d6a7">🎓 الرابع ابتدائي عام</div>
+      <div class="student-row">
+        <span class="num-circle n1">1</span>
+        <div class="student-info">
+          <div class="student-name">ايت حماد او الحاج وجدان</div>
+          <div class="student-class">3APG-4APG | H205036283H</div>
+        </div>
+        <div class="student-score" style="color:var(--gold)">9.10</div>
+        <span class="female">♀</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n2">2</span>
+        <div class="student-info">
+          <div class="student-name">زيدان اكرام</div>
+          <div class="student-class">3APG-4APG | H223017888H</div>
+        </div>
+        <div class="student-score" style="color:var(--silver)">8.65</div>
+        <span class="female">♀</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n3">3</span>
+        <div class="student-info">
+          <div class="student-name">أفرو فاطمة الزهراء</div>
+          <div class="student-class">3APG-4APG | H210004557H</div>
+        </div>
+        <div class="student-score" style="color:var(--bronze)">8.32</div>
+        <span class="female">♀</span>
+      </div>
+    </div>
+
+    <!-- Level 3 top 3 -->
+    <div class="card" style="--card-top-color:linear-gradient(90deg,#1e88e5,#90caf9)">
+      <div class="card-title" style="color:#90caf9">🎓 الثالث ابتدائي عام</div>
+      <div class="student-row">
+        <span class="num-circle n1">1</span>
+        <div class="student-info">
+          <div class="student-name">ايت لحساين انور</div>
+          <div class="student-class">3APG-4APG | H212033268H</div>
+        </div>
+        <div class="student-score" style="color:var(--gold)">8.78</div>
+        <span class="male">♂</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n2">2</span>
+        <div class="student-info">
+          <div class="student-name">الوردي سلمى</div>
+          <div class="student-class">1APG-2APG-3APG | H232008365H</div>
+        </div>
+        <div class="student-score" style="color:var(--silver)">8.09</div>
+        <span class="female">♀</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n2">2</span>
+        <div class="student-info">
+          <div class="student-name">أفرو محمد</div>
+          <div class="student-class">3APG-4APG | H224068938H</div>
+        </div>
+        <div class="student-score" style="color:var(--silver)">8.09</div>
+        <span class="male">♂</span>
+      </div>
+    </div>
+
+    <!-- Level 2 top 3 -->
+    <div class="card" style="--card-top-color:linear-gradient(90deg,#8e24aa,#ce93d8)">
+      <div class="card-title" style="color:#ce93d8">🎓 الثاني ابتدائي عام</div>
+      <div class="student-row">
+        <span class="num-circle n1">1</span>
+        <div class="student-info">
+          <div class="student-name">تمتضيت اسماء</div>
+          <div class="student-class">2APG-1 | H220034006H</div>
+        </div>
+        <div class="student-score" style="color:var(--gold)">8.90</div>
+        <span class="female">♀</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n2">2</span>
+        <div class="student-info">
+          <div class="student-name">تشكوت فردوس</div>
+          <div class="student-class">1APG-2APG | H229061521H</div>
+        </div>
+        <div class="student-score" style="color:var(--silver)">8.65</div>
+        <span class="female">♀</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n3">3</span>
+        <div class="student-info">
+          <div class="student-name">الجندوز عبد الكريم</div>
+          <div class="student-class">2APG-1 | H239019217H</div>
+        </div>
+        <div class="student-score" style="color:var(--bronze)">8.47</div>
+        <span class="male">♂</span>
+      </div>
+    </div>
+
+    <!-- Level 1 top 3 -->
+    <div class="card" style="--card-top-color:linear-gradient(90deg,#e53935,#ef9a9a)">
+      <div class="card-title" style="color:#ef9a9a">🎓 الأول ابتدائي عام</div>
+      <div class="student-row">
+        <span class="num-circle n1">1</span>
+        <div class="student-info">
+          <div class="student-name">تمتضيت يونس</div>
+          <div class="student-class">1APG-1 | H238018399H</div>
+        </div>
+        <div class="student-score" style="color:var(--gold)">8.86</div>
+        <span class="male">♂</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n2">2</span>
+        <div class="student-info">
+          <div class="student-name">العربي امينة</div>
+          <div class="student-class">1APG-1 | H231019286H</div>
+        </div>
+        <div class="student-score" style="color:var(--silver)">8.71</div>
+        <span class="female">♀</span>
+      </div>
+      <div class="student-row">
+        <span class="num-circle n3">3</span>
+        <div class="student-info">
+          <div class="student-name">السباعي اروى</div>
+          <div class="student-class">1APG-1 | H237018401H</div>
+        </div>
+        <div class="student-score" style="color:var(--bronze)">8.61</div>
+        <span class="female">♀</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 4: GRADES TABLE ========== -->
+  <div class="section-title animate">
+    <div class="icon" style="background:linear-gradient(135deg,#00695c,#00897b)">📋</div>
+    <h2>جدول المعدلات: أعلى - أدنى - الملاحظ لكل مستوى</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card animate animate-d1">
+    <table class="stat-table">
+      <thead>
+        <tr>
+          <th>المستوى الدراسي</th>
+          <th>عدد التلاميذ</th>
+          <th>الحاصلون على المعدل</th>
+          <th>نسبة النجاح</th>
+          <th>أعلى معدل (ذكر)</th>
+          <th>أعلى معدل (أنثى)</th>
+          <th>المعدل الملاحظ ذكر</th>
+          <th>المعدل الملاحظ أنثى</th>
+          <th>المعدل الملاحظ عام</th>
+          <th>أدنى معدل</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="level-badge" style="background:#e53935;color:white;padding:3px 10px;border-radius:10px;font-size:0.78rem">الأول</span></td>
+          <td>42</td><td>38</td>
+          <td><span class="score-high">90.48%</span></td>
+          <td class="rank-1">8.86</td><td>8.71</td>
+          <td>6.86</td><td>6.36</td>
+          <td><strong style="color:#4fc3f7">6.66</strong></td>
+          <td><span class="score-low">4.13</span></td>
+        </tr>
+        <tr>
+          <td><span class="level-badge" style="background:#8e24aa;color:white;padding:3px 10px;border-radius:10px;font-size:0.78rem">الثاني</span></td>
+          <td>49</td><td>46</td>
+          <td><span class="score-high">93.88%</span></td>
+          <td>8.47</td><td class="rank-1">8.90</td>
+          <td>6.73</td><td>6.66</td>
+          <td><strong style="color:#4fc3f7">6.69</strong></td>
+          <td><span class="score-low">4.24</span></td>
+        </tr>
+        <tr>
+          <td><span class="level-badge" style="background:#1e88e5;color:white;padding:3px 10px;border-radius:10px;font-size:0.78rem">الثالث</span></td>
+          <td>41</td><td>34</td>
+          <td><span class="score-mid">82.93%</span></td>
+          <td class="rank-1">8.78</td><td>8.09</td>
+          <td>6.26</td><td>6.02</td>
+          <td><strong style="color:#4fc3f7">6.17</strong></td>
+          <td><span class="score-low">3.61</span></td>
+        </tr>
+        <tr>
+          <td><span class="level-badge" style="background:#43a047;color:white;padding:3px 10px;border-radius:10px;font-size:0.78rem">الرابع</span></td>
+          <td>40</td><td>37</td>
+          <td><span class="score-high">92.50%</span></td>
+          <td>7.81</td><td class="rank-1">9.10</td>
+          <td>7.12</td><td>5.92</td>
+          <td><strong style="color:#4fc3f7">6.55</strong></td>
+          <td><span class="score-low">3.89</span></td>
+        </tr>
+        <tr>
+          <td><span class="level-badge" style="background:#fb8c00;color:white;padding:3px 10px;border-radius:10px;font-size:0.78rem">الخامس</span></td>
+          <td>44</td><td>36</td>
+          <td><span class="score-mid">81.82%</span></td>
+          <td class="rank-1">8.57</td><td>7.64</td>
+          <td>6.04</td><td>5.86</td>
+          <td><strong style="color:#4fc3f7">5.93</strong></td>
+          <td><span class="score-low">4.04</span></td>
+        </tr>
+        <tr>
+          <td><span class="level-badge" style="background:#00acc1;color:white;padding:3px 10px;border-radius:10px;font-size:0.78rem">السادس</span></td>
+          <td>43</td><td>43</td>
+          <td><span class="score-high">100%</span></td>
+          <td class="rank-1">8.70</td><td>8.69</td>
+          <td>7.15</td><td>7.09</td>
+          <td><strong style="color:#4fc3f7">7.12</strong></td>
+          <td><span class="score-mid">5.24</span></td>
+        </tr>
+        <tr style="background:rgba(255,215,0,0.07)">
+          <td><strong style="color:var(--gold)">المجموع / المؤسسة</strong></td>
+          <td><strong>259</strong></td><td><strong>234</strong></td>
+          <td><span class="score-high"><strong>90.35%</strong></span></td>
+          <td class="rank-1">8.86</td><td class="rank-1">9.10</td>
+          <td>6.71</td><td>6.31</td>
+          <td><strong style="color:var(--gold)">6.53</strong></td>
+          <td><span class="score-low">3.61</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========== SECTION 5: SUBJECTS ========== -->
+  <div class="section-title animate">
+    <div class="icon" style="background:linear-gradient(135deg,#6a1b9a,#8e24aa)">📚</div>
+    <h2>تحليل المواد الدراسية - المعدلات حسب كل مستوى</h2>
+    <div class="line"></div>
+  </div>
+
+  <!-- Level 6 Subjects -->
+  <div class="card animate animate-d1" style="margin-bottom:16px;--card-top-color:linear-gradient(90deg,#00acc1,#80deea)">
+    <div class="card-title" style="color:#80deea;font-size:1rem">📚 السادس ابتدائي - المعدلات حسب المادة</div>
+    <div class="grid-4">
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">اللغة العربية</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#4fc3f7">7.12</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:71%;background:#4fc3f7"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">اللغة الفرنسية</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#f48fb1">6.30</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:63%;background:#f48fb1"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">الاجتماعيات</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#a5d6a7">7.42</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:74%;background:#a5d6a7"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">الرياضيات</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#ffcc80">7.12</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:71%;background:#ffcc80"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">التربية الإسلامية</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#ce93d8">7.73</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:77%;background:#ce93d8"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">التربية البدنية</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#80deea">7.24</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:72%;background:#80deea"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">النشاط العلمي</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#ef9a9a">7.23</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:72%;background:#ef9a9a"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">التربية الفنية</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#ffb74d">6.99</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:70%;background:#ffb74d"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level 5 Subjects -->
+  <div class="card animate animate-d2" style="margin-bottom:16px;--card-top-color:linear-gradient(90deg,#fb8c00,#ffcc80)">
+    <div class="card-title" style="color:#ffcc80;font-size:1rem">📚 الخامس ابتدائي - المعدلات حسب المادة</div>
+    <div class="grid-4">
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">اللغة العربية</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#4fc3f7">5.93</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:59%;background:#4fc3f7"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">اللغة الفرنسية</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#f48fb1">5.32</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:53%;background:#f48fb1"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">الاجتماعيات</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#a5d6a7">5.93</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:59%;background:#a5d6a7"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">الرياضيات</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#ffcc80">5.33</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:53%;background:#ffcc80"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">التربية الإسلامية</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#ce93d8">6.22</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:62%;background:#ce93d8"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">التربية البدنية</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#80deea">5.91</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:59%;background:#80deea"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">النشاط العلمي</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#ef9a9a">6.48</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:65%;background:#ef9a9a"></div></div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px">
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px">التربية الفنية</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#ffb74d">6.22</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:62%;background:#ffb74d"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subjects comparison chart -->
+  <div class="grid-2 animate animate-d3">
+    <div class="card">
+      <div class="card-title">📊 مقارنة المواد - السادس والخامس</div>
+      <div class="chart-container" style="height:280px">
+        <canvas id="subjectsChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 المواد: الأول والثاني والثالث والرابع</div>
+      <div class="chart-container" style="height:280px">
+        <canvas id="subjectsChart2"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subjects Table - All levels combined -->
+  <div class="card animate" style="margin-top:16px">
+    <div class="card-title">📋 جدول تفصيلي للمعدلات حسب المادة ولكل مستوى</div>
+    <table class="stat-table">
+      <thead>
+        <tr>
+          <th>المادة</th>
+          <th style="color:#e53935">الأول</th>
+          <th style="color:#8e24aa">الثاني</th>
+          <th style="color:#1e88e5">الثالث</th>
+          <th style="color:#43a047">الرابع</th>
+          <th style="color:#fb8c00">الخامس</th>
+          <th style="color:#00acc1">السادس</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>اللغة العربية</strong></td>
+          <td>6.64</td><td>6.66</td><td>5.49</td><td>5.68</td><td>5.32</td><td style="color:#69f0ae;font-weight:700">7.12</td>
+        </tr>
+        <tr>
+          <td><strong>اللغة الفرنسية</strong></td>
+          <td>6.34</td><td>6.31</td><td>5.88</td><td>6.92</td><td>5.93</td><td>6.30</td>
+        </tr>
+        <tr>
+          <td><strong>الاجتماعيات / الاجتماعيات</strong></td>
+          <td>—</td><td>6.90</td><td>—</td><td>5.82</td><td>5.93</td><td style="color:#69f0ae;font-weight:700">7.42</td>
+        </tr>
+        <tr>
+          <td><strong>الرياضيات</strong></td>
+          <td>7.31</td><td>6.94</td><td>6.95</td><td>7.28</td><td>5.33</td><td>7.12</td>
+        </tr>
+        <tr>
+          <td><strong>التربية الإسلامية</strong></td>
+          <td>6.65</td><td>6.53</td><td>6.34</td><td>6.47</td><td>6.22</td><td style="color:#69f0ae;font-weight:700">7.73</td>
+        </tr>
+        <tr>
+          <td><strong>التربية البدنية</strong></td>
+          <td>6.33</td><td>6.91</td><td>6.07</td><td>6.59</td><td>5.91</td><td>7.24</td>
+        </tr>
+        <tr>
+          <td><strong>النشاط العلمي</strong></td>
+          <td>6.74</td><td>6.61</td><td>6.39</td><td>7.06</td><td>6.48</td><td>7.23</td>
+        </tr>
+        <tr>
+          <td><strong>التربية الفنية</strong></td>
+          <td>6.59</td><td>—</td><td>6.08</td><td>6.61</td><td>6.22</td><td>6.99</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========== SECTION 6: DECISIONS ========== -->
+  <div class="section-title animate">
+    <div class="icon" style="background:linear-gradient(135deg,#c62828,#e53935)">📝</div>
+    <h2>قرارات مجالس الأقسام - تحليل شامل</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="grid-3 animate animate-d1">
+    <div class="card" style="--card-top-color:linear-gradient(90deg,#ffd700,#ff8f00)">
+      <div class="card-title" style="color:var(--gold)">🏅 التنويه والتشجيع ولوحة الشرف</div>
+      <table class="stat-table">
+        <thead><tr><th>المستوى</th><th style="color:#ffd700">تنويه</th><th style="color:#c0c0c0">تشجيع</th><th style="color:#cd7f32">لوحة شرف</th></tr></thead>
+        <tbody>
+          <tr><td>الأول</td><td>1</td><td>3</td><td>8</td></tr>
+          <tr><td>الثاني</td><td>3</td><td>6</td><td>8</td></tr>
+          <tr><td>الثالث</td><td>2</td><td>2</td><td>4</td></tr>
+          <tr><td>الرابع</td><td>0</td><td>2</td><td>6</td></tr>
+          <tr><td>الخامس</td><td>1</td><td>2</td><td>10</td></tr>
+          <tr><td>السادس</td><td>3</td><td>6</td><td>9</td></tr>
+          <tr style="background:rgba(255,215,0,0.08)"><td><strong>المجموع</strong></td><td><strong>10</strong></td><td><strong>21</strong></td><td><strong>45</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="--card-top-color:linear-gradient(90deg,#c62828,#ef5350)">
+      <div class="card-title" style="color:#ef9a9a">⚠️ التنبيه والإنذار والتوبيخ</div>
+      <table class="stat-table">
+        <thead><tr><th>المستوى</th><th style="color:#ef9a9a">تنبيه</th><th style="color:#ff7043">إنذار</th><th style="color:#d32f2f">توبيخ</th></tr></thead>
+        <tbody>
+          <tr><td>الأول</td><td>14</td><td>5</td><td>0</td></tr>
+          <tr><td>الثاني</td><td>11</td><td>8</td><td>0</td></tr>
+          <tr><td>الثالث</td><td>16</td><td>9</td><td>0</td></tr>
+          <tr><td>الرابع</td><td>12</td><td>4</td><td>0</td></tr>
+          <tr><td>الخامس</td><td>7</td><td>10</td><td>0</td></tr>
+          <tr><td>السادس</td><td>15</td><td>3</td><td>0</td></tr>
+          <tr style="background:rgba(198,40,40,0.1)"><td><strong>المجموع</strong></td><td><strong>75</strong></td><td><strong>39</strong></td><td><strong>0</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="--card-top-color:linear-gradient(90deg,#00695c,#00897b)">
+      <div class="card-title" style="color:#80cbc4">📊 درجة التحكم حسب المستوى</div>
+      <table class="stat-table">
+        <thead><tr><th>المستوى</th><th style="color:#ef9a9a">غير متحكم</th><th style="color:#ffb74d">في طور</th><th style="color:#69f0ae">متحكم</th></tr></thead>
+        <tbody>
+          <tr><td>الأول</td><td>4 (9.5%)</td><td>6 (14.3%)</td><td>32 (76%)</td></tr>
+          <tr><td>الثاني</td><td>3 (6.1%)</td><td>12 (24.5%)</td><td>34 (69.4%)</td></tr>
+          <tr><td>الثالث</td><td>7 (17%)</td><td>9 (22%)</td><td>25 (61%)</td></tr>
+          <tr><td>الرابع</td><td>3 (7.5%)</td><td>12 (30%)</td><td>25 (62.5%)</td></tr>
+          <tr><td>الخامس</td><td>8 (18.2%)</td><td>16 (36.4%)</td><td>20 (45.4%)</td></tr>
+          <tr><td>السادس</td><td>0 (0%)</td><td>4 (9.3%)</td><td>39 (90.7%)</td></tr>
+          <tr style="background:rgba(0,105,92,0.1)"><td><strong>المجموع</strong></td><td><strong>25 (9.7%)</strong></td><td><strong>59 (22.8%)</strong></td><td><strong>175 (67.6%)</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Charts for decisions -->
+  <div class="grid-2 animate animate-d2" style="margin-top:16px">
+    <div class="card">
+      <div class="card-title">🏆 توزيع قرارات التشجيع حسب المستوى</div>
+      <div class="chart-container" style="height:260px">
+        <canvas id="decisionsChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 درجات التحكم - كل المستويات</div>
+      <div class="chart-container" style="height:260px">
+        <canvas id="masteryChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SECTION 7: SCORE DISTRIBUTION ========== -->
+  <div class="section-title animate">
+    <div class="icon" style="background:linear-gradient(135deg,#4527a0,#5e35b1)">📉</div>
+    <h2>توزيع مجالات المعدلات - الرسم البياني الشامل</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="grid-2 animate animate-d1">
+    <div class="card">
+      <div class="card-title">📊 توزيع المعدلات - كل المستويات</div>
+      <div class="chart-container" style="height:300px">
+        <canvas id="distributionChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎯 مقارنة المعدلات الملاحظة بين المستويات</div>
+      <div class="chart-container" style="height:300px">
+        <canvas id="radarChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== GLOBAL SCORE TABLE ========== -->
+  <div class="section-title animate">
+    <div class="icon" style="background:linear-gradient(135deg,#0d47a1,#1565c0)">🏅</div>
+    <h2>لائحة المتميزين - أعلى المعدلات على مستوى المؤسسة</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card animate">
+    <div class="card-title">🌟 أعلى 10 معدلات على مستوى المؤسسة كاملة (الدورة الأولى)</div>
+    <table class="stat-table">
+      <thead>
+        <tr>
+          <th>الرتبة</th>
+          <th>الاسم والنسب</th>
+          <th>المستوى</th>
+          <th>القسم</th>
+          <th>النوع</th>
+          <th>المعدل</th>
+          <th>التقييم</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="num-circle n1">1</span></td>
+          <td><strong>ايت حماد او الحاج وجدان</strong></td>
+          <td><span class="level-badge" style="background:#43a047;color:white;padding:2px 8px;border-radius:8px;font-size:0.72rem">الرابع</span></td>
+          <td>3APG-4APG</td>
+          <td class="female">أنثى</td>
+          <td class="rank-1" style="font-size:1.1rem">9.10</td>
+          <td>⭐⭐⭐⭐⭐</td>
+        </tr>
+        <tr>
+          <td><span class="num-circle n2">2</span></td>
+          <td><strong>تمتضيت اسماء</strong></td>
+          <td><span class="level-badge" style="background:#8e24aa;color:white;padding:2px 8px;border-radius:8px;font-size:0.72rem">الثاني</span></td>
+          <td>2APG-1</td>
+          <td class="female">أنثى</td>
+          <td class="rank-2" style="font-size:1.1rem">8.90</td>
+          <td>⭐⭐⭐⭐⭐</td>
+        </tr>
+        <tr>
+          <td><span class="num-circle n3">3</span></td>
+          <td><strong>تمتضيت يونس</strong></td>
+          <td><span class="level-badge" style="background:#e53935;color:white;padding:2px 8px;border-radius:8px;font-size:0.72rem">الأول</span></td>
+          <td>1APG-1</td>
+          <td class="male">ذكر</td>
+          <td class="rank-3" style="font-size:1.1rem">8.86</td>
+          <td>⭐⭐⭐⭐⭐</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>العربي امينة</td>
+          <td><span class="level-badge" style="background:#e53935;color:white;padding:2px 8px;border-radius:8px;font-size:0.72rem">الأول</span></td>
+          <td>1APG-1</td>
+          <td class="female">أنثى</td>
+          <td><span class="score-high">8.71</span></td>
+          <td>⭐⭐⭐⭐</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>وباسو جواد</td>
+          <td><span class="level-badge" style="background:#00acc1;color:white;padding:2px 8px;border-radius:8px;font-size:0.72rem">السادس</span></td>
+          <td>5APG-6APG</td>
+          <td class="male">ذكر</td>
+          <td><span class="score-high">8.70</span></td>
+          <td>⭐⭐⭐⭐</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>بوشعيب ليلى</td>
+          <td><span class="level-badge" style="background:#00acc1;color:white;padding:2px 8px;border-radius:8px;font-size:0.72rem">السادس</span></td>
+          <td>4APG-5APG-6APG</td>
+          <td class="female">أنثى</td>
+          <td><span class="score-high">8.69</span></td>
+          <td>⭐⭐⭐⭐</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>زيدان اكرام</td>
+          <td><span class="level-badge" style="background:#43a047;color:white;padding:2px 8px;border-radius:8px;font-size:0.72rem">الرابع</span></td>
+          <td>3APG-4APG</td>
+          <td class="female">أنثى</td>
+          <td><span class="score-high">8.65</span></td>
+          <td>⭐⭐⭐⭐</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>تشكوت فردوس</td>
+          <td><span class="level-badge" style="background:#8e24aa;color:white;padding:2px 8px;border-radius:8px;font-size:0.72rem">الثاني</span></td>
+          <td>1APG-2APG</td>
+          <td class="female">أنثى</td>
+          <td><span class="score-high">8.65</span></td>
+          <td>⭐⭐⭐⭐</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>ايت حماد او الحاج وليد</td>
+          <td><span class="level-badge" style="background:#00acc1;color:white;padding:2px 8px;border-radius:8px;font-size:0.72rem">السادس</span></td>
+          <td>5APG-6APG</td>
+          <td class="male">ذكر</td>
+          <td><span class="score-high">8.62</span></td>
+          <td>⭐⭐⭐⭐</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>السباعي اروى</td>
+          <td><span class="level-badge" style="background:#e53935;color:white;padding:2px 8px;border-radius:8px;font-size:0.72rem">الأول</span></td>
+          <td>1APG-1</td>
+          <td class="female">أنثى</td>
+          <td><span class="score-high">8.61</span></td>
+          <td>⭐⭐⭐⭐</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div style="margin-bottom:8px">🎓 الأكاديمية الجهوية للتربية والتكوين لجهة: درعة - تافيلالت | المديرية الإقليمية: إقليم زاكورة</div>
+    <div>مجموعة مدارس سيت الرائدة | الدورة الأولى | السنة الدراسية 2025/2026</div>
+    <div style="margin-top:10px;color:rgba(255,255,255,0.3);font-size:0.72rem">تم إعداد هذه اللوحة بواسطة نظام الإحصاء التربوي الآلي</div>
+  </div>
+
+</div>
+
+<script>
+Chart.defaults.color = '#9fa8da';
+Chart.defaults.font.family = "'Cairo', 'Tajawal', sans-serif";
+
+// Level comparison chart
+const levelCtx = document.getElementById('levelChart').getContext('2d');
+new Chart(levelCtx, {
+  type: 'bar',
+  data: {
+    labels: ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'],
+    datasets: [
+      {
+        label: 'أعلى معدل',
+        data: [8.86, 8.90, 8.78, 9.10, 8.57, 8.70],
+        backgroundColor: 'rgba(255,215,0,0.8)',
+        borderColor: '#ffd700',
+        borderWidth: 2,
+        borderRadius: 6,
+      },
+      {
+        label: 'المعدل الملاحظ',
+        data: [6.66, 6.69, 6.17, 6.55, 5.93, 7.12],
+        backgroundColor: 'rgba(79,195,247,0.7)',
+        borderColor: '#4fc3f7',
+        borderWidth: 2,
+        borderRadius: 6,
+      },
+      {
+        label: 'أدنى معدل',
+        data: [4.13, 4.24, 3.61, 3.89, 4.04, 5.24],
+        backgroundColor: 'rgba(239,154,154,0.7)',
+        borderColor: '#ef9a9a',
+        borderWidth: 2,
+        borderRadius: 6,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { padding: 15, font: { size: 11 } } } },
+    scales: {
+      y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { font: { size: 10 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// Gender distribution chart
+const genderCtx = document.getElementById('genderChart').getContext('2d');
+new Chart(genderCtx, {
+  type: 'bar',
+  data: {
+    labels: ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'],
+    datasets: [
+      {
+        label: 'ذكور',
+        data: [25, 25, 26, 21, 17, 24],
+        backgroundColor: 'rgba(79,195,247,0.8)',
+        borderColor: '#4fc3f7',
+        borderWidth: 2,
+        borderRadius: 4,
+      },
+      {
+        label: 'إناث',
+        data: [17, 24, 15, 19, 27, 19],
+        backgroundColor: 'rgba(244,143,177,0.8)',
+        borderColor: '#f48fb1',
+        borderWidth: 2,
+        borderRadius: 4,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { padding: 15, font: { size: 11 } } } },
+    scales: {
+      y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { font: { size: 10 } } },
+      x: { grid: { display: false }, stacked: false, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// Subjects chart - level 5&6
+const subCtx = document.getElementById('subjectsChart').getContext('2d');
+new Chart(subCtx, {
+  type: 'radar',
+  data: {
+    labels: ['عربية', 'فرنسية', 'اجتماعيات', 'رياضيات', 'إسلامية', 'بدنية', 'علمي', 'فنية'],
+    datasets: [
+      {
+        label: 'السادس',
+        data: [7.12, 6.30, 7.42, 7.12, 7.73, 7.24, 7.23, 6.99],
+        backgroundColor: 'rgba(0,172,193,0.2)',
+        borderColor: '#00acc1',
+        borderWidth: 2,
+        pointBackgroundColor: '#00acc1',
+      },
+      {
+        label: 'الخامس',
+        data: [5.93, 5.32, 5.93, 5.33, 6.22, 5.91, 6.48, 6.22],
+        backgroundColor: 'rgba(251,140,0,0.2)',
+        borderColor: '#fb8c00',
+        borderWidth: 2,
+        pointBackgroundColor: '#fb8c00',
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { padding: 10, font: { size: 10 } } } },
+    scales: { r: { min: 0, max: 10, ticks: { backdropColor: 'transparent', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.1)' }, angleLines: { color: 'rgba(255,255,255,0.1)' } } }
+  }
+});
+
+// Subjects chart - levels 1-4
+const subCtx2 = document.getElementById('subjectsChart2').getContext('2d');
+new Chart(subCtx2, {
+  type: 'radar',
+  data: {
+    labels: ['عربية', 'فرنسية', 'اجتماعيات', 'رياضيات', 'إسلامية', 'بدنية', 'علمي', 'فنية'],
+    datasets: [
+      {
+        label: 'الأول',
+        data: [6.64, 6.34, null, 7.31, 6.65, 6.33, 6.74, 6.59],
+        backgroundColor: 'rgba(229,57,53,0.15)',
+        borderColor: '#e53935',
+        borderWidth: 2,
+        pointBackgroundColor: '#e53935',
+      },
+      {
+        label: 'الثاني',
+        data: [6.66, 6.31, 6.90, 6.94, 6.53, 6.91, 6.61, null],
+        backgroundColor: 'rgba(142,36,170,0.15)',
+        borderColor: '#8e24aa',
+        borderWidth: 2,
+        pointBackgroundColor: '#8e24aa',
+      },
+      {
+        label: 'الثالث',
+        data: [5.49, 5.88, null, 6.95, 6.34, 6.07, 6.39, 6.08],
+        backgroundColor: 'rgba(30,136,229,0.15)',
+        borderColor: '#1e88e5',
+        borderWidth: 2,
+        pointBackgroundColor: '#1e88e5',
+      },
+      {
+        label: 'الرابع',
+        data: [5.68, 6.92, 5.82, 7.28, 6.47, 6.59, 7.06, 6.61],
+        backgroundColor: 'rgba(67,160,71,0.15)',
+        borderColor: '#43a047',
+        borderWidth: 2,
+        pointBackgroundColor: '#43a047',
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { padding: 8, font: { size: 9 } } } },
+    scales: { r: { min: 0, max: 10, ticks: { backdropColor: 'transparent', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.1)' }, angleLines: { color: 'rgba(255,255,255,0.1)' } } }
+  }
+});
+
+// Decisions chart
+const decCtx = document.getElementById('decisionsChart').getContext('2d');
+new Chart(decCtx, {
+  type: 'bar',
+  data: {
+    labels: ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'],
+    datasets: [
+      { label: 'تنويه', data: [1,3,2,0,1,3], backgroundColor: 'rgba(255,215,0,0.8)', borderRadius: 4 },
+      { label: 'تشجيع', data: [3,6,2,2,2,6], backgroundColor: 'rgba(192,192,192,0.8)', borderRadius: 4 },
+      { label: 'لوحة شرف', data: [8,8,4,6,10,9], backgroundColor: 'rgba(205,127,50,0.8)', borderRadius: 4 },
+      { label: 'تنبيه', data: [14,11,16,12,7,15], backgroundColor: 'rgba(239,154,154,0.6)', borderRadius: 4 },
+      { label: 'إنذار', data: [5,8,9,4,10,3], backgroundColor: 'rgba(239,83,80,0.7)', borderRadius: 4 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { padding: 8, font: { size: 9 } } } },
+    scales: {
+      y: { stacked: true, grid: { color: 'rgba(255,255,255,0.06)' } },
+      x: { stacked: true, grid: { display: false } }
+    }
+  }
+});
+
+// Mastery donut chart
+const mastCtx = document.getElementById('masteryChart').getContext('2d');
+new Chart(mastCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['متحكم (67.6%)', 'في طور التحكم (22.8%)', 'غير متحكم (9.7%)'],
+    datasets: [{
+      data: [175, 59, 25],
+      backgroundColor: ['rgba(105,240,174,0.8)', 'rgba(255,183,77,0.8)', 'rgba(239,154,154,0.8)'],
+      borderColor: ['#69f0ae', '#ffb74d', '#ef9a9a'],
+      borderWidth: 3,
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 12, font: { size: 10 } } }
+    },
+    cutout: '60%',
+  }
+});
+
+// Score distribution
+const distCtx = document.getElementById('distributionChart').getContext('2d');
+new Chart(distCtx, {
+  type: 'bar',
+  data: {
+    labels: ['[0-2[', '[2-3[', '[3-4[', '[4-5[', '[5-6[', '[6-7[', '[7-8[', '[8-10]'],
+    datasets: [
+      { label: 'الأول', data: [0,0,3,8,8,14,5,1], backgroundColor: 'rgba(229,57,53,0.7)', borderRadius: 3 },
+      { label: 'الثاني', data: [0,0,3,6,7,11,8,3], backgroundColor: 'rgba(142,36,170,0.7)', borderRadius: 3 },
+      { label: 'الثالث', data: [0,0,4,4,4,16,9,2], backgroundColor: 'rgba(30,136,229,0.7)', borderRadius: 3 },
+      { label: 'الرابع', data: [0,0,1,8,8,6,2,0], backgroundColor: 'rgba(67,160,71,0.7)', borderRadius: 3 },
+      { label: 'الخامس', data: [0,0,1,7,7,7,10,1], backgroundColor: 'rgba(251,140,0,0.7)', borderRadius: 3 },
+      { label: 'السادس', data: [0,0,0,0,1,6,15,3], backgroundColor: 'rgba(0,172,193,0.7)', borderRadius: 3 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { padding: 8, font: { size: 9 } } } },
+    scales: {
+      y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { font: { size: 10 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+// Radar comparison
+const radCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radCtx, {
+  type: 'polarArea',
+  data: {
+    labels: ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'],
+    datasets: [{
+      label: 'المعدل الملاحظ',
+      data: [6.66, 6.69, 6.17, 6.55, 5.93, 7.12],
+      backgroundColor: [
+        'rgba(229,57,53,0.5)', 'rgba(142,36,170,0.5)',
+        'rgba(30,136,229,0.5)', 'rgba(67,160,71,0.5)',
+        'rgba(251,140,0,0.5)', 'rgba(0,172,193,0.5)'
+      ],
+      borderColor: ['#e53935','#8e24aa','#1e88e5','#43a047','#fb8c00','#00acc1'],
+      borderWidth: 2,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { padding: 10, font: { size: 10 } } } },
+    scales: { r: { min: 0, max: 10, ticks: { backdropColor: 'transparent', font: { size: 9 } } } }
+  }
+});
+</script>
+
+</body>
+</html>
